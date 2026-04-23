@@ -582,7 +582,7 @@ namespace SourceGit.Views
                 return;
             }
 
-            if (e.Key is not (Key.Delete or Key.Back))
+            if (e.Key is not (Key.Delete or Key.Back or Key.F2))
                 return;
 
             var repo = DataContext as ViewModels.Repository;
@@ -592,6 +592,18 @@ namespace SourceGit.Views
             var selected = BranchesPresenter.SelectedItems;
             if (selected == null || selected.Count == 0)
                 return;
+
+            // Rename branch with F2
+            if (e.Key == Key.F2
+                && selected.Count == 1
+                && selected[0] is ViewModels.BranchTreeNode { Backend: Models.Branch branch })
+            {
+                if (branch.IsLocal && repo.CanCreatePopup())
+                    repo.ShowPopup(new ViewModels.RenameBranch(repo, branch));
+
+                e.Handled = true;
+                return;
+            }
 
             if (selected.Count == 1 && selected[0] is ViewModels.BranchTreeNode { Backend: Models.Remote remote })
             {
@@ -903,6 +915,7 @@ namespace SourceGit.Views
                 var rename = new MenuItem();
                 rename.Header = App.Text("BranchCM.Rename", branch.Name);
                 rename.Icon = this.CreateMenuIcon("Icons.Rename");
+                rename.Tag = "F2";
                 rename.Click += (_, e) =>
                 {
                     if (repo.CanCreatePopup())
