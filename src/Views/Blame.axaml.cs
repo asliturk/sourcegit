@@ -461,6 +461,7 @@ namespace SourceGit.Views
     {
         public Blame()
         {
+            CloseOnESC = true;
             InitializeComponent();
         }
 
